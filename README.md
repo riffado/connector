@@ -1,0 +1,99 @@
+# OpenPlaud Connector
+
+Tiny browser extension that bridges your Plaud session to your [OpenPlaud](https://github.com/openplaud/openplaud) instance.
+
+It exists because Plaud's email-OTP login signs you into a different account than Plaud's Google or Apple sign-in (see [openplaud/openplaud#65](https://github.com/openplaud/openplaud/issues/65)). Real Sign in with Google / Apple from inside OpenPlaud is structurally blocked by Google's authorized-origins policy on Plaud's OAuth client. The connector solves that by letting the user sign in to `web.plaud.ai` normally and then forwarding the resulting access token to OpenPlaud.
+
+The token is the same long-lived (~300 day) JWT Plaud's own web app uses. OpenPlaud encrypts it at rest with AES-256-GCM.
+
+## How it works
+
+1. On the OpenPlaud connect screen, the page detects `window.__openplaudConnector` (injected by this extension) and shows a **Continue with Plaud** button.
+2. Clicking it asks the extension to open `https://web.plaud.ai/` in a new tab.
+3. You sign in there however you normally do — Google, Apple, or email/password. The extension does not see your password and does not interact with Google or Apple.
+4. Once Plaud's web app has obtained an access token (visible to the page in `localStorage` and on every `Authorization: Bearer …` header it sends), the extension reads it, closes the Plaud tab, and hands the token to the OpenPlaud tab.
+5. The OpenPlaud page POSTs the token to its own `/api/plaud/auth/connect-token` endpoint with your existing OpenPlaud session cookie. Done.
+
+The connector itself **never sends data to anything other than your OpenPlaud instance**. There is no backend; everything happens in your browser.
+
+## Permissions and what they're for
+
+| Permission | Why |
+| --- | --- |
+| `storage` | Remember which self-hosted OpenPlaud origins you've paired. |
+| `tabs` | Open `web.plaud.ai` in a new tab and close it after capture. |
+| `host_permissions: web.plaud.ai, api*.plaud.ai` | Read your token from a logged-in Plaud session. |
+| `host_permissions: openplaud.com` | Inject the bridge into the hosted OpenPlaud app. |
+| `optional_host_permissions: https://*/*` | Self-hosted instances can be paired at runtime via the popup. Each one prompts you separately. |
+
+Not used: `cookies`, `webRequest`, `<all_urls>` content scripts, anything Google/Apple-related.
+
+## Self-hosted
+
+If you self-host OpenPlaud at, say, `https://my-plaud.example.com`:
+
+1. Install the extension.
+2. Click the toolbar icon → enter your URL → **Add**.
+3. Approve the per-origin permission prompt.
+4. Open your OpenPlaud connect screen and click **Continue with Plaud**.
+
+You can remove a paired origin from the same popup; the extension revokes the corresponding host permission at the same time.
+
+## Development
+
+```bash
+pnpm install
+pnpm dev          # vite dev server with HMR for the popup
+pnpm build        # type-check + production build into dist/
+pnpm zip          # zip dist/ into dist-zip/openplaud-connector-<v>.zip for store upload
+```
+
+Load the unpacked extension:
+
+1. `pnpm build` (or `pnpm dev` while iterating)
+2. Chrome → `chrome://extensions` → Developer mode → **Load unpacked** → select `dist/`.
+3. Reload the extension after each rebuild.
+
+## Architecture (one screen)
+
+```
+┌──────────────────────────┐    chrome.runtime    ┌───────────────────────────┐
+│  content-bridge.ts       │ ───────────────────▶ │  background.ts            │
+│  (your OpenPlaud origin) │                      │  (service worker)         │
+│                          │                      │                           │
+│  injects ↓               │                      │  - opens web.plaud.ai     │
+│                          │                      │  - one bridge in flight   │
+│  page-bridge.ts          │                      │  - forwards token back    │
+│  (page main world)       │                      └─────────────┬─────────────┘
+│                          │                                    │
+│  exposes:                │                                    │ chrome.tabs
+│  window.__openplaud      │                                    ▼
+│      Connector.connect() │                      ┌───────────────────────────┐
+│                          │ ◀─── tab message ─── │  content-plaud.ts         │
+└──────────────────────────┘                      │  (web.plaud.ai)           │
+            │                                     │                           │
+            │ Promise<{ accessToken, apiBase }>   │  - localStorage poll      │
+            │                                     │  - fetch() Auth sniff     │
+            ▼                                     │  - sends to background    │
+┌──────────────────────────┐                      └───────────────────────────┘
+│  OpenPlaud page          │
+│  POST /api/plaud/auth/   │
+│       connect-token      │
+│  (session cookie)        │
+└──────────────────────────┘
+```
+
+The connector is a courier, not a server. It carries one short-lived secret across two tabs the same browser already trusts.
+
+## Security model
+
+Threats considered:
+
+- **Random sites scraping the bridge.** The page-bridge is only injected into origins listed in `host_permissions` (or runtime-granted). Other origins never see `window.__openplaudConnector`.
+- **A paired OpenPlaud origin trying to read my Plaud password.** It can't. The connector never sees your password — it only reads the post-login access token from Plaud's own page. A malicious OpenPlaud origin you've paired could call `connect()` and try to capture the token, but you've already granted that origin the right to receive tokens by pairing it. Don't pair origins you don't control.
+- **Plaud changing their token storage shape.** The connector polls `localStorage["access_token"]` *and* sniffs `Authorization` headers on outgoing `api*.plaud.ai` requests. If Plaud changes one path, the other still works. If they change both, we ship a connector update.
+- **Token in flight.** Stays inside one browser; never crosses our infrastructure. From `web.plaud.ai` → service worker → your OpenPlaud tab → your OpenPlaud server, all over local IPC except the final POST which is HTTPS to a host you chose.
+
+## License
+
+AGPL-3.0. Same license as the parent [OpenPlaud](https://github.com/openplaud/openplaud) project.

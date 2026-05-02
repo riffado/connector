@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <title>OpenPlaud Connector</title>
+        <link rel="stylesheet" href="./popup.css" />
+    </head>
+    <body>
+        <main>
+            <header>
+                <h1>OpenPlaud Connector</h1>
+                <p class="sub">
+                    Bridges your Plaud session to your OpenPlaud instance.
+                </p>
+            </header>
+
+            <section id="hosted-section">
+                <h2>Hosted</h2>
+                <p class="muted">
+                    <a href="https://openplaud.com" target="_blank" rel="noopener"
+                        >openplaud.com</a
+                    >
+                    is paired by default. Open the connect screen there and
+                    click <b>Continue with Plaud</b>.
+                </p>
+            </section>
+
+            <section id="self-hosted-section">
+                <h2>Self-hosted</h2>
+                <p class="muted">
+                    Add the URL of your self-hosted OpenPlaud instance below.
+                    Your browser will prompt for permission.
+                </p>
+                <form id="add-form">
+                    <input
+                        id="origin-input"
+                        type="url"
+                        placeholder="https://my-openplaud.example.com"
+                        required
+                    />
+                    <button type="submit">Add</button>
+                </form>
+                <ul id="origins-list"></ul>
+            </section>
+
+            <footer>
+                <a href="https://github.com/openplaud/connector" target="_blank" rel="noopener"
+                    >Source &amp; security model &rarr;</a
+                >
+            </footer>
+        </main>
+        <script type="module" src="./popup.ts"></script>
+    </body>
+</html>

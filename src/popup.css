@@ -1,0 +1,151 @@
+:root {
+    color-scheme: light dark;
+    --fg: #111;
+    --fg-muted: #555;
+    --bg: #fff;
+    --border: #e5e5e5;
+    --accent: #0f62fe;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --fg: #f1f1f1;
+        --fg-muted: #aaa;
+        --bg: #1a1a1a;
+        --border: #2a2a2a;
+        --accent: #4d8eff;
+    }
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+    background: var(--bg);
+    color: var(--fg);
+    font:
+        13px/1.45 -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+}
+
+main {
+    width: 320px;
+    padding: 14px 16px 12px;
+}
+
+header h1 {
+    margin: 0 0 2px;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+header .sub {
+    margin: 0 0 14px;
+    color: var(--fg-muted);
+    font-size: 12px;
+}
+
+section {
+    border-top: 1px solid var(--border);
+    padding-top: 10px;
+    margin-top: 10px;
+}
+
+section h2 {
+    margin: 0 0 6px;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--fg-muted);
+}
+
+.muted {
+    color: var(--fg-muted);
+    font-size: 12px;
+    margin: 0 0 8px;
+}
+
+a {
+    color: var(--accent);
+    text-decoration: none;
+}
+a:hover {
+    text-decoration: underline;
+}
+
+form {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 8px;
+}
+
+input[type="url"] {
+    flex: 1;
+    padding: 6px 8px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--bg);
+    color: var(--fg);
+    font-size: 12px;
+    min-width: 0;
+}
+
+button {
+    padding: 6px 10px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--bg);
+    color: var(--fg);
+    font-size: 12px;
+    cursor: pointer;
+}
+
+button[type="submit"] {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+}
+
+ul {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 4px;
+}
+
+li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 4px 0;
+    border-bottom: 1px dotted var(--border);
+    font-size: 12px;
+}
+
+li:last-child {
+    border-bottom: none;
+}
+
+li .origin {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+li .remove {
+    flex-shrink: 0;
+    padding: 2px 6px;
+    font-size: 11px;
+}
+
+footer {
+    margin-top: 10px;
+    text-align: center;
+    font-size: 11px;
+}

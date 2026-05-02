@@ -1,0 +1,159 @@
+/**
+ * Service worker.
+ *
+ * Coordinates the bridge flow:
+ *   1. content-bridge (running on the user's OpenPlaud origin) sends
+ *      `bridge:request-connect` when the user clicks "Continue with Plaud".
+ *   2. We open https://web.plaud.ai in a new focused tab and remember which
+ *      OpenPlaud tab to send the result back to.
+ *   3. content-plaud (running on web.plaud.ai) sends `plaud:token-captured`
+ *      with the access token + detected region.
+ *   4. We forward the token back to the originating OpenPlaud tab and close
+ *      (or leave) the plaud.ai tab.
+ *
+ * Only one bridge request can be in flight at a time \u2014 starting a second
+ * cancels the first. Keeps the model simple; the user is never juggling
+ * two connect attempts.
+ */
+
+import type {
+    ConnectorTokenPayload,
+    RuntimeMessage,
+    RuntimeResponse,
+} from "./lib/messages";
+
+interface BridgeState {
+    bridgeTabId: number;
+    plaudTabId?: number;
+    startedAt: number;
+}
+
+let pending: BridgeState | null = null;
+const BRIDGE_TTL_MS = 5 * 60 * 1000; // 5 minutes
+
+function clearPending(): void {
+    pending = null;
+}
+
+function isStale(state: BridgeState): boolean {
+    return Date.now() - state.startedAt > BRIDGE_TTL_MS;
+}
+
+async function startBridge(bridgeTabId: number): Promise<void> {
+    // Cancel any prior bridge request \u2014 we only support one at a time.
+    if (pending) {
+        try {
+            if (pending.plaudTabId !== undefined) {
+                await chrome.tabs.remove(pending.plaudTabId);
+            }
+        } catch {
+            // Tab may already be gone. Ignore.
+        }
+    }
+
+    const tab = await chrome.tabs.create({
+        url: "https://web.plaud.ai/",
+        active: true,
+    });
+
+    pending = {
+        bridgeTabId,
+        plaudTabId: tab.id,
+        startedAt: Date.now(),
+    };
+}
+
+async function deliverTokenToBridge(
+    payload: ConnectorTokenPayload,
+): Promise<void> {
+    if (!pending) return;
+    if (isStale(pending)) {
+        clearPending();
+        return;
+    }
+
+    const { bridgeTabId, plaudTabId } = pending;
+
+    try {
+        await chrome.tabs.sendMessage(bridgeTabId, {
+            type: "plaud:token-captured",
+            payload,
+        } satisfies RuntimeMessage);
+    } catch (err) {
+        // Bridge tab might have been closed or navigated. Nothing useful we
+        // can do; surface in the console for debugging.
+        console.warn("[openplaud-connector] bridge tab unreachable:", err);
+    }
+
+    // Close the plaud.ai tab now that we've harvested what we needed.
+    if (plaudTabId !== undefined) {
+        try {
+            await chrome.tabs.remove(plaudTabId);
+        } catch {
+            // Tab may already be gone.
+        }
+    }
+
+    clearPending();
+}
+
+chrome.runtime.onMessage.addListener(
+    (
+        msg: RuntimeMessage,
+        sender,
+        sendResponse: (resp: RuntimeResponse) => void,
+    ) => {
+        if (msg.type === "bridge:request-connect") {
+            const tabId = msg.bridgeTabId ?? sender.tab?.id;
+            if (typeof tabId !== "number") {
+                sendResponse({
+                    ok: false,
+                    error: "could not determine originating tab id",
+                });
+                return false;
+            }
+            startBridge(tabId).then(
+                () => sendResponse({ ok: true }),
+                (err: unknown) =>
+                    sendResponse({
+                        ok: false,
+                        error: err instanceof Error ? err.message : String(err),
+                    }),
+            );
+            return true; // async response
+        }
+
+        if (msg.type === "plaud:token-captured") {
+            deliverTokenToBridge(msg.payload).then(
+                () => sendResponse({ ok: true }),
+                (err: unknown) =>
+                    sendResponse({
+                        ok: false,
+                        error: err instanceof Error ? err.message : String(err),
+                    }),
+            );
+            return true;
+        }
+
+        if (msg.type === "bridge:cancel") {
+            if (pending?.plaudTabId !== undefined) {
+                chrome.tabs
+                    .remove(pending.plaudTabId)
+                    .catch(() => {})
+                    .finally(() => clearPending());
+            } else {
+                clearPending();
+            }
+            sendResponse({ ok: true });
+            return false;
+        }
+
+        return false;
+    },
+);
+
+// Garbage-collect stale pending state on startup (service workers can wake
+// up after a long sleep).
+chrome.runtime.onStartup.addListener(() => {
+    if (pending && isStale(pending)) clearPending();
+});
