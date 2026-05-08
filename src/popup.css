@@ -106,10 +106,17 @@ button {
     cursor: pointer;
 }
 
-button[type="submit"] {
+button[type="submit"],
+button.primary {
     background: var(--accent);
     color: #fff;
     border-color: var(--accent);
+}
+
+button.block {
+    display: block;
+    width: 100%;
+    padding: 8px 10px;
 }
 
 ul {
@@ -148,4 +155,9 @@ footer {
     margin-top: 10px;
     text-align: center;
     font-size: 11px;
+}
+
+footer .sep {
+    color: var(--fg-muted);
+    margin: 0 4px;
 }

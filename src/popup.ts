@@ -72,6 +72,25 @@ function render(origins: StoredOrigin[]): void {
 }
 
 async function init(): Promise<void> {
+    const openHosted = document.getElementById(
+        "open-hosted",
+    ) as HTMLButtonElement | null;
+    openHosted?.addEventListener("click", () => {
+        chrome.tabs.create({ url: "https://openplaud.com" }).catch(() => {
+            window.open("https://openplaud.com", "_blank", "noopener");
+        });
+    });
+
+    const openWelcome = document.getElementById(
+        "open-welcome",
+    ) as HTMLAnchorElement | null;
+    openWelcome?.addEventListener("click", (e) => {
+        e.preventDefault();
+        chrome.tabs.create({
+            url: chrome.runtime.getURL("src/welcome.html"),
+        });
+    });
+
     const form = document.getElementById("add-form") as HTMLFormElement;
     const input = document.getElementById("origin-input") as HTMLInputElement;
 
