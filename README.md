@@ -42,6 +42,10 @@ version, or if you're on a Chromium browser without Web Store access.
 The extension stays installed across browser restarts. You'll see a
 welcome tab the first time, same as the Web Store install.
 
+> Sideloaded extensions do not auto-update. To get a newer version,
+> download the latest release zip and repeat **Load unpacked** on the
+> new folder (Chrome will replace the old one).
+
 ---
 
 ## How it works

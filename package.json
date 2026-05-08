@@ -1,6 +1,6 @@
 {
     "name": "openplaud-connector",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "description": "Browser extension that bridges your Plaud session to OpenPlaud (self-hosted or hosted).",
     "private": true,
     "license": "AGPL-3.0",

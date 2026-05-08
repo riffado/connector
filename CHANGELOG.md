@@ -6,6 +6,12 @@ and this project adheres to [SemVer](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.1.1] — 2026-05-08
+
+First sideload-distributable release. Not yet on the Chrome Web Store —
+icons and store assets still pending. Install via the GitHub release zip
+(see README).
+
 ### Added
 - First-run welcome page with three-step onboarding, opened automatically
   on install.

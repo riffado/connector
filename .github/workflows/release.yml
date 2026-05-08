@@ -50,3 +50,7 @@ jobs:
           files: dist-zip/*.zip
           generate_release_notes: true
           fail_on_unmatched_files: true
+          # Sideload-only releases until the Chrome Web Store listing is
+          # live (icons + promo tile pending). Flip to false once the
+          # extension is published on CWS.
+          prerelease: true
