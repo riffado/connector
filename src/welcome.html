@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>Welcome to OpenPlaud Connector</title>
+        <link rel="stylesheet" href="./popup.css" />
+        <link rel="stylesheet" href="./welcome.css" />
+    </head>
+    <body class="welcome">
+        <main class="welcome-main">
+            <header class="welcome-header">
+                <h1>You're set up.</h1>
+                <p class="lede">
+                    The OpenPlaud Connector is installed. Here's how to use it
+                    — it takes about thirty seconds.
+                </p>
+            </header>
+
+            <ol class="steps">
+                <li>
+                    <div class="step-num">1</div>
+                    <div class="step-body">
+                        <h2>Open OpenPlaud</h2>
+                        <p>
+                            Go to your OpenPlaud instance — the hosted version
+                            at
+                            <a
+                                href="https://openplaud.com"
+                                target="_blank"
+                                rel="noopener"
+                                >openplaud.com</a
+                            >, or your self-hosted URL.
+                        </p>
+                        <p>
+                            <button
+                                id="open-hosted"
+                                type="button"
+                                class="primary"
+                            >
+                                Open openplaud.com
+                            </button>
+                        </p>
+                    </div>
+                </li>
+
+                <li>
+                    <div class="step-num">2</div>
+                    <div class="step-body">
+                        <h2>Click "Continue with Plaud"</h2>
+                        <p>
+                            On the OpenPlaud connect screen you'll see a
+                            <b>Continue with Plaud</b> button. The extension
+                            adds it automatically — you don't need to enable
+                            anything.
+                        </p>
+                    </div>
+                </li>
+
+                <li>
+                    <div class="step-num">3</div>
+                    <div class="step-body">
+                        <h2>Sign in to Plaud as you normally would</h2>
+                        <p>
+                            A new tab opens at
+                            <code>web.plaud.ai</code>. Sign in with Google,
+                            Apple, or email — whatever you already use. The
+                            extension never sees your password. Once Plaud has
+                            you logged in, the tab closes automatically and
+                            OpenPlaud takes over.
+                        </p>
+                    </div>
+                </li>
+            </ol>
+
+            <section class="self-hosted">
+                <h2>Self-hosting OpenPlaud?</h2>
+                <p class="muted">
+                    Add your instance URL below. Your browser will prompt for
+                    permission to that one origin — nothing else.
+                </p>
+                <form id="add-form">
+                    <input
+                        id="origin-input"
+                        type="url"
+                        placeholder="https://my-openplaud.example.com"
+                        required
+                    />
+                    <button type="submit">Add</button>
+                </form>
+                <p
+                    id="add-status"
+                    class="muted status"
+                    role="status"
+                    aria-live="polite"
+                ></p>
+                <ul id="origins-list"></ul>
+            </section>
+
+            <footer class="welcome-footer">
+                <p class="muted">
+                    Privacy:
+                    <a
+                        href="https://openplaud.com/privacy/connector"
+                        target="_blank"
+                        rel="noopener"
+                        >openplaud.com/privacy/connector</a
+                    >
+                    &middot; Source &amp; security model:
+                    <a
+                        href="https://github.com/openplaud/connector"
+                        target="_blank"
+                        rel="noopener"
+                        >github.com/openplaud/connector</a
+                    >
+                </p>
+            </footer>
+        </main>
+        <script type="module" src="./welcome.ts"></script>
+    </body>
+</html>

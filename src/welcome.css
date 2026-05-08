@@ -1,0 +1,153 @@
+/* Welcome page styles. Loaded after popup.css; reuses its CSS variables
+ * (--fg, --bg, --border, --accent, etc.) so light/dark mode just works. */
+
+body.welcome {
+    /* override popup.css implicit narrow width */
+    background: var(--bg);
+}
+
+.welcome-main {
+    width: auto;
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 48px 24px 64px;
+}
+
+.welcome-header h1 {
+    margin: 0 0 8px;
+    font-size: 28px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+}
+
+.welcome-header .lede {
+    margin: 0 0 32px;
+    color: var(--fg-muted);
+    font-size: 15px;
+    line-height: 1.5;
+}
+
+.steps {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 40px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.steps > li {
+    display: grid;
+    grid-template-columns: 36px 1fr;
+    gap: 16px;
+    align-items: start;
+    padding: 16px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: var(--bg);
+}
+
+.step-num {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 600;
+    margin-top: 2px;
+}
+
+.step-body h2 {
+    margin: 0 0 6px;
+    font-size: 15px;
+    font-weight: 600;
+    text-transform: none;
+    letter-spacing: 0;
+    color: var(--fg);
+}
+
+.step-body p {
+    margin: 0 0 8px;
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--fg);
+}
+
+.step-body p:last-child {
+    margin-bottom: 0;
+}
+
+.step-body code {
+    font-family:
+        ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+    font-size: 12px;
+    padding: 1px 5px;
+    background: var(--border);
+    border-radius: 4px;
+}
+
+button.primary {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+    padding: 8px 14px;
+    font-size: 13px;
+}
+
+.self-hosted {
+    border-top: 1px solid var(--border);
+    padding-top: 24px;
+    margin-top: 8px;
+}
+
+.self-hosted h2 {
+    margin: 0 0 6px;
+    font-size: 14px;
+    font-weight: 600;
+    text-transform: none;
+    letter-spacing: 0;
+    color: var(--fg);
+}
+
+.self-hosted form {
+    margin-top: 10px;
+}
+
+.self-hosted input[type="url"] {
+    font-size: 13px;
+    padding: 8px 10px;
+}
+
+.self-hosted button[type="submit"] {
+    padding: 8px 14px;
+    font-size: 13px;
+}
+
+.status {
+    min-height: 1em;
+    margin: 6px 0 8px;
+}
+
+.status.error {
+    color: #d33;
+}
+
+.status.ok {
+    color: #2a8a3a;
+}
+
+.welcome-footer {
+    margin-top: 32px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+}
+
+.welcome-footer p {
+    margin: 0;
+    font-size: 12px;
+    text-align: center;
+}

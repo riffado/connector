@@ -157,3 +157,18 @@ chrome.runtime.onMessage.addListener(
 chrome.runtime.onStartup.addListener(() => {
     if (pending && isStale(pending)) clearPending();
 });
+
+// First-run onboarding: open the welcome tab once on fresh install. We
+// intentionally do NOT open it on update or browser_update so we don't
+// nag returning users every time they get a new version.
+chrome.runtime.onInstalled.addListener((details) => {
+    if (details.reason !== "install") return;
+    chrome.tabs
+        .create({ url: chrome.runtime.getURL("src/welcome.html") })
+        .catch((err) => {
+            console.warn(
+                "[openplaud-connector] failed to open welcome tab:",
+                err,
+            );
+        });
+});

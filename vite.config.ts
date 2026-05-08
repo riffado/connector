@@ -8,9 +8,12 @@ export default defineConfig({
         rollupOptions: {
             // The page-world bridge is injected via a <script> tag at runtime
             // by content-bridge.ts; ensure it ships as its own asset Vite
-            // doesn't try to inline-import.
+            // doesn't try to inline-import. The welcome page is opened by
+            // background.ts via chrome.runtime.getURL and must be emitted
+            // as a real HTML asset (it isn't referenced from manifest).
             input: {
                 "page-bridge": "src/page-bridge.ts",
+                welcome: "src/welcome.html",
             },
             output: {
                 entryFileNames: (chunk) =>
