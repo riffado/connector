@@ -27,9 +27,12 @@ export default defineManifest({
     short_name: "OpenPlaud",
     description: pkg.description,
     version: pkg.version,
-    // TODO(icons): ship 16/32/48/128 PNGs before submitting to the Chrome
-    // Web Store. For development the browser uses its default puzzle-piece
-    // icon which is fine.
+    homepage_url: pkg.homepage,
+    minimum_chrome_version: "114",
+    // BLOCKS CWS SUBMISSION: ship 16/32/48/128 PNGs in src/icons/ and wire
+    // them up via `icons` and `action.default_icon` before submitting to
+    // the Chrome Web Store. Sideload + GitHub release zips work without
+    // them — Chrome falls back to the default puzzle-piece icon.
     action: {
         default_popup: "src/popup.html",
         default_title: "OpenPlaud Connector",
@@ -46,7 +49,10 @@ export default defineManifest({
         "https://web.plaud.ai/*",
         "https://openplaud.com/*",
     ],
-    optional_host_permissions: ["https://*/*", "http://*/*"],
+    // HTTPS-only on purpose. Self-hosted OpenPlaud over plain HTTP isn't a
+    // realistic deployment and dropping http://*/* materially shrinks the
+    // CWS review surface for `optional_host_permissions`.
+    optional_host_permissions: ["https://*/*"],
     content_scripts: [
         {
             matches: ["https://web.plaud.ai/*"],
