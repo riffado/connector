@@ -43,8 +43,9 @@ body.welcome {
     align-items: start;
     padding: 16px;
     border: 1px solid var(--border);
-    border-radius: 10px;
-    background: var(--bg);
+    border-radius: var(--radius);
+    background: var(--surface);
+    box-shadow: 0 1px 3px 0 oklch(0 0 0 / 0.05);
 }
 
 .step-num {
@@ -52,7 +53,7 @@ body.welcome {
     height: 28px;
     border-radius: 50%;
     background: var(--accent);
-    color: #fff;
+    color: var(--accent-fg);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -91,9 +92,6 @@ body.welcome {
 }
 
 button.primary {
-    background: var(--accent);
-    color: #fff;
-    border-color: var(--accent);
     padding: 8px 14px;
     font-size: 13px;
 }
@@ -133,11 +131,11 @@ button.primary {
 }
 
 .status.error {
-    color: #d33;
+    color: oklch(0.6368 0.2078 25.3313); /* openplaud --destructive */
 }
 
 .status.ok {
-    color: #2a8a3a;
+    color: oklch(0.5 0.18 145); /* darkened --accent-green for light bg */
 }
 
 .welcome-footer {
