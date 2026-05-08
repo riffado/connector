@@ -13,7 +13,8 @@
         "dev": "vite",
         "build": "tsc --noEmit && vite build",
         "type-check": "tsc --noEmit",
-        "zip": "cd dist && zip -r ../dist-zip/openplaud-connector-$npm_package_version.zip . && cd .."
+        "zip": "mkdir -p dist-zip && cd dist && zip -r ../dist-zip/openplaud-connector-$npm_package_version.zip . && cd ..",
+        "release": "pnpm build && pnpm zip"
     },
     "devDependencies": {
         "@crxjs/vite-plugin": "^2.2.0",
