@@ -6,6 +6,25 @@ and this project adheres to [SemVer](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.1.2] — 2026-05-09
+
+### Fixed
+- **Extension was not detected by openplaud.com.** `dist/page-bridge.js`
+  was emitted as an ES module (with an `import` of two shared constants),
+  but `content-bridge.ts` injects it via a classic `<script>` tag. Chrome
+  threw `Cannot use import statement outside a module` and aborted the
+  script before `window.__openplaudConnector` could be defined, so the
+  OpenPlaud page kept showing the "Install OpenPlaud Connector" CTA even
+  with the extension active.
+  Fix: inline `PAGE_MARKER` and `BRIDGE_VERSION` (and the type aliases)
+  directly into `page-bridge.ts` so Rollup emits a self-contained
+  classic-script file. Added a header comment pinning the duplicated
+  constants to `src/lib/messages.ts` so they don't drift.
+
+### Style
+- Match the OpenPlaud color palette (warm cream + terracotta, OKLCH) in
+  the popup and welcome page.
+
 ## [0.1.1] — 2026-05-08
 
 First sideload-distributable release. Not yet on the Chrome Web Store —
