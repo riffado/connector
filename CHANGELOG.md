@@ -6,6 +6,35 @@ and this project adheres to [SemVer](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.1.3] — 2026-05-09
+
+### Fixed
+- **Plaud tab never auto-closed; OpenPlaud never received the token.**
+  `content-plaud.ts` was reading `localStorage["access_token"]`, but the
+  current Plaud web app stores the bearer at `pld_tokenstr` as a
+  JSON-encoded string with a literal `bearer ` prefix. With the wrong
+  key + wrong shape, the token was never detected and the 90s poll
+  timed out silently.
+  Fix: read `pld_tokenstr`, JSON-unwrap, strip `bearer ` (case-insensitive),
+  validate JWT shape. Falls back to scanning all `pld_*` keys for a
+  JWT-shaped value (longest match wins, after excluding workspace and
+  Frill SSO tokens) so the next Plaud rename doesn't break us.
+- **Wrong region for non-global users.** apiBase was hardcoded to
+  `api.plaud.ai`; the previous fetch-sniffing fallback never worked
+  because content scripts run in an isolated JS world (their
+  `window.fetch` doesn't intercept page calls).
+  Fix: read apiBase deterministically from
+  `pld_<userId>:workspaceList[0].domain` (Plaud writes it explicitly).
+  Falls back to decoding the JWT payload's `region` claim and mapping
+  AWS regions to Plaud API hosts. Final fallback defaults to global.
+- Removed the dead in-isolated-world `window.fetch` monkey-patch from
+  `content-plaud.ts`.
+
+### Added
+- `console.debug` markers on web.plaud.ai for `script active`, fallback
+  key usage, and JWT-region resolution — makes future field debugging
+  one open-DevTools-and-look glance away.
+
 ## [0.1.2] — 2026-05-09
 
 ### Fixed
