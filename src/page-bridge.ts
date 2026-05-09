@@ -26,13 +26,56 @@
  * session cookie can persist a connection.
  */
 
-import {
-    BRIDGE_VERSION,
-    PAGE_MARKER,
-    type ConnectorTokenPayload,
-    type PageRequest,
-    type PageResponse,
-} from "./lib/messages";
+// ---------------------------------------------------------------------------
+// Self-contained protocol mirror.
+//
+// THIS FILE MUST HAVE NO IMPORTS / NO EXPORTS.
+//
+// page-bridge.js is injected into the OpenPlaud page's main world via a
+// classic <script> tag (see content-bridge.ts). If Rollup emits even one
+// `import` statement the browser refuses to parse the file ("Cannot use
+// import statement outside a module") and window.__openplaudConnector
+// never gets defined — OpenPlaud then shows the "Install OpenPlaud
+// Connector" CTA forever.
+//
+// Anything this file needs from the protocol is duplicated below. If you
+// change PAGE_MARKER or BRIDGE_VERSION, change them in BOTH places
+// (here and src/lib/messages.ts) and bump the connector version.
+// ---------------------------------------------------------------------------
+
+const PAGE_MARKER = "__openplaud" as const;
+const BRIDGE_VERSION = 1;
+
+type PlaudRegion = "global" | "euc1" | "apse1" | "unknown";
+
+interface ConnectorTokenPayload {
+    accessToken: string;
+    apiBase: string;
+    region: PlaudRegion;
+    capturedAt: number;
+}
+
+type PageRequest = {
+    [PAGE_MARKER]: true;
+    kind: "connect";
+    requestId: string;
+};
+
+type PageResponse =
+    | {
+          [PAGE_MARKER]: true;
+          kind: "connect-result";
+          requestId: string;
+          ok: true;
+          payload: ConnectorTokenPayload;
+      }
+    | {
+          [PAGE_MARKER]: true;
+          kind: "connect-result";
+          requestId: string;
+          ok: false;
+          error: string;
+      };
 
 interface PendingConnect {
     requestId: string;
