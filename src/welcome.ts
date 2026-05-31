@@ -18,7 +18,7 @@ import {
     type StoredOrigin,
 } from "./lib/storage";
 
-const HARD_CODED_ORIGINS = ["https://openplaud.com"];
+const HARD_CODED_ORIGINS = ["https://riffado.com"];
 
 function normalize(input: string): string | null {
     try {
@@ -81,9 +81,9 @@ async function init(): Promise<void> {
         "open-hosted",
     ) as HTMLButtonElement;
     openHosted.addEventListener("click", () => {
-        chrome.tabs.create({ url: "https://openplaud.com" }).catch(() => {
+        chrome.tabs.create({ url: "https://riffado.com" }).catch(() => {
             // Fallback in case tabs.create is somehow unavailable.
-            window.open("https://openplaud.com", "_blank", "noopener");
+            window.open("https://riffado.com", "_blank", "noopener");
         });
     });
 
@@ -96,7 +96,7 @@ async function init(): Promise<void> {
         const origin = normalize(input.value.trim());
         if (!origin) {
             setStatus(
-                "Enter a full URL like https://my-openplaud.example.com",
+                "Enter a full URL like https://my-riffado.example.com",
                 "error",
             );
             return;
@@ -113,7 +113,7 @@ async function init(): Promise<void> {
         const granted = await requestHostPermission(origin);
         if (!granted) {
             setStatus(
-                "Permission denied. The connector needs access to your OpenPlaud origin to deliver the token.",
+                "Permission denied. The connector needs access to your Riffado origin to deliver the token.",
                 "error",
             );
             return;

@@ -13,7 +13,7 @@ listing. Files here are not bundled into the extension itself.
 | `promo-tile-440x280.png` | 440×280 PNG | DEFERRED — needs branding |
 
 The promo tile is deferred along with the extension icons; both depend on
-final OpenPlaud branding.
+final Riffado branding.
 
 ## How to capture screenshots
 
@@ -28,13 +28,13 @@ Each screenshot must be exactly 1280×800. Easiest path:
 
 Suggested shots:
 
-1. **`screenshot-1.png` — OpenPlaud connect screen with the bridge
-   button.** Open openplaud.com, navigate to the connect screen so the
+1. **`screenshot-1.png` — Riffado connect screen with the bridge
+   button.** Open riffado.com, navigate to the connect screen so the
    "Continue with Plaud" button is visible. This is the user-facing
    moment that explains what the extension does.
 2. **`screenshot-2.png` — Welcome / onboarding page.** Trigger by
    reinstalling the extension, or by visiting
    `chrome-extension://<id>/src/welcome.html`.
 3. **`screenshot-3.png` — Popup with one self-hosted instance paired.**
-   Click the toolbar icon. Add `https://my-openplaud.example.com` first
+   Click the toolbar icon. Add `https://my-riffado.example.com` first
    so the list is populated.

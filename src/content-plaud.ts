@@ -3,7 +3,7 @@
  *
  * Job: harvest the Plaud access token + the regional API base the user's
  * account is provisioned in, then forward both to the background service
- * worker so it can deliver them to the OpenPlaud tab that initiated the
+ * worker so it can deliver them to the Riffado tab that initiated the
  * bridge.
  *
  * Capture strategy (deterministic, all from localStorage):
@@ -47,7 +47,7 @@ const POLL_TIMEOUT_MS = 90_000;
 
 const JWT_RE = /^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/;
 
-console.debug("[openplaud-connector] active on web.plaud.ai");
+console.debug("[riffado-connector] active on web.plaud.ai");
 
 function unwrapJsonString(raw: string): string {
     const s = raw.trim();
@@ -102,7 +102,7 @@ function readPlaudToken(): string | null {
         }
         if (best && bestKey) {
             console.debug(
-                `[openplaud-connector] token read from fallback key '${bestKey}'`,
+                `[riffado-connector] token read from fallback key '${bestKey}'`,
             );
         }
         return best;
@@ -203,7 +203,7 @@ function resolveApiBase(token: string): {
         const fromJwt = apiBaseFromAwsRegion(awsRegion);
         if (fromJwt) {
             console.debug(
-                `[openplaud-connector] apiBase resolved from JWT region '${awsRegion}'`,
+                `[riffado-connector] apiBase resolved from JWT region '${awsRegion}'`,
             );
             return {
                 apiBase: fromJwt,
@@ -211,7 +211,7 @@ function resolveApiBase(token: string): {
             };
         }
         console.debug(
-            `[openplaud-connector] unknown JWT region '${awsRegion}', defaulting to global`,
+            `[riffado-connector] unknown JWT region '${awsRegion}', defaulting to global`,
         );
     }
 
@@ -248,7 +248,7 @@ async function pollUntilForwarded(): Promise<void> {
         await new Promise((r) => setTimeout(r, POLL_INTERVAL_MS));
     }
     console.debug(
-        "[openplaud-connector] timed out waiting for pld_tokenstr in localStorage",
+        "[riffado-connector] timed out waiting for pld_tokenstr in localStorage",
     );
 }
 

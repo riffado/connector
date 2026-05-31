@@ -2,13 +2,13 @@
  * Service worker.
  *
  * Coordinates the bridge flow:
- *   1. content-bridge (running on the user's OpenPlaud origin) sends
+ *   1. content-bridge (running on the user's Riffado origin) sends
  *      `bridge:request-connect` when the user clicks "Continue with Plaud".
  *   2. We open https://web.plaud.ai in a new focused tab and remember which
- *      OpenPlaud tab to send the result back to.
+ *      Riffado tab to send the result back to.
  *   3. content-plaud (running on web.plaud.ai) sends `plaud:token-captured`
  *      with the access token + detected region.
- *   4. We forward the token back to the originating OpenPlaud tab and close
+ *   4. We forward the token back to the originating Riffado tab and close
  *      (or leave) the plaud.ai tab.
  *
  * Only one bridge request can be in flight at a time \u2014 starting a second
@@ -82,7 +82,7 @@ async function deliverTokenToBridge(
     } catch (err) {
         // Bridge tab might have been closed or navigated. Nothing useful we
         // can do; surface in the console for debugging.
-        console.warn("[openplaud-connector] bridge tab unreachable:", err);
+        console.warn("[riffado-connector] bridge tab unreachable:", err);
     }
 
     // Close the plaud.ai tab now that we've harvested what we needed.
@@ -167,7 +167,7 @@ chrome.runtime.onInstalled.addListener((details) => {
         .create({ url: chrome.runtime.getURL("src/welcome.html") })
         .catch((err) => {
             console.warn(
-                "[openplaud-connector] failed to open welcome tab:",
+                "[riffado-connector] failed to open welcome tab:",
                 err,
             );
         });

@@ -25,10 +25,10 @@ export interface ConnectorTokenPayload {
 
 // \u2500\u2500 Page \u2194 content (window.postMessage) \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
 //
-// Every message carries `__openplaud` so the listener can ignore unrelated
+// Every message carries `__riffado` so the listener can ignore unrelated
 // postMessage traffic on the page.
 
-export const PAGE_MARKER = "__openplaud" as const;
+export const PAGE_MARKER = "__riffado" as const;
 
 export type PageRequest =
     | {

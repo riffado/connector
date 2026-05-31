@@ -2,27 +2,27 @@
  * Page-world bridge.
  *
  * Injected by content-bridge.ts into the page's main JS world. Exposes
- * `window.__openplaudConnector` so the OpenPlaud app can detect the
+ * `window.__riffadoConnector` so the Riffado app can detect the
  * extension and trigger a connect flow without ever directly handling the
  * Plaud access token \u2014 the token arrives back in the page only after the
  * user has signed in to web.plaud.ai in a separate tab.
  *
  * Public API (semver-pinned via `version`):
  *
- *   window.__openplaudConnector = {
+ *   window.__riffadoConnector = {
  *     version: 1,
  *     connect(): Promise<{ accessToken, apiBase, region, capturedAt }>
  *   }
  *
  * Callers should:
- *   - feature-detect by checking `window.__openplaudConnector?.version`.
+ *   - feature-detect by checking `window.__riffadoConnector?.version`.
  *   - call connect() in response to a user gesture (Chrome blocks new-tab
  *     opens otherwise; the background opens web.plaud.ai via chrome.tabs).
  *   - POST the resolved payload to their own
  *     /api/plaud/auth/connect-token endpoint with credentials: 'include'.
  *
- * The connector itself never talks to OpenPlaud's API \u2014 the page does.
- * That keeps the auth model simple: only the user's existing OpenPlaud
+ * The connector itself never talks to Riffado's API \u2014 the page does.
+ * That keeps the auth model simple: only the user's existing Riffado
  * session cookie can persist a connection.
  */
 
@@ -31,11 +31,11 @@
 //
 // THIS FILE MUST HAVE NO IMPORTS / NO EXPORTS.
 //
-// page-bridge.js is injected into the OpenPlaud page's main world via a
+// page-bridge.js is injected into the Riffado page's main world via a
 // classic <script> tag (see content-bridge.ts). If Rollup emits even one
 // `import` statement the browser refuses to parse the file ("Cannot use
-// import statement outside a module") and window.__openplaudConnector
-// never gets defined — OpenPlaud then shows the "Install OpenPlaud
+// import statement outside a module") and window.__riffadoConnector
+// never gets defined — Riffado then shows the "Install Riffado
 // Connector" CTA forever.
 //
 // Anything this file needs from the protocol is duplicated below. If you
@@ -43,7 +43,7 @@
 // (here and src/lib/messages.ts) and bump the connector version.
 // ---------------------------------------------------------------------------
 
-const PAGE_MARKER = "__openplaud" as const;
+const PAGE_MARKER = "__riffado" as const;
 const BRIDGE_VERSION = 1;
 
 type PlaudRegion = "global" | "euc1" | "apse1" | "unknown";
@@ -156,7 +156,7 @@ const api = {
 // Define on window. Use `defineProperty` so the page can't trivially
 // overwrite the API and confuse callers.
 try {
-    Object.defineProperty(window, "__openplaudConnector", {
+    Object.defineProperty(window, "__riffadoConnector", {
         value: api,
         writable: false,
         configurable: true,
@@ -165,6 +165,6 @@ try {
 } catch {
     // If defineProperty fails for any reason, fall back to plain assignment
     // so feature-detection still works.
-    (window as unknown as { __openplaudConnector?: typeof api }).__openplaudConnector =
+    (window as unknown as { __riffadoConnector?: typeof api }).__riffadoConnector =
         api;
 }

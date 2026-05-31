@@ -41,7 +41,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: openplaud-connector
+          name: riffado-connector
           path: dist-zip/*.zip
 
       - name: Attach to GitHub release

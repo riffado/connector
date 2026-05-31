@@ -1,10 +1,31 @@
 # Changelog
 
-All notable changes to OpenPlaud Connector will be documented here. The
+All notable changes to Riffado Connector will be documented here. The
 format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 and this project adheres to [SemVer](https://semver.org/).
 
 ## [Unreleased]
+
+## [0.2.0] — 2026-05-30
+
+### Changed
+- **Rebranded from OpenPlaud to Riffado.** Extension name is now "Riffado
+  Connector"; the hosted instance moved from `openplaud.com` to
+  `riffado.com` (manifest `host_permissions` and the bridge content-script
+  match updated accordingly). Package renamed to `riffado-connector` and
+  release artifacts/repo URLs now point at `github.com/riffado/connector`.
+- **Page-world contract renamed to match the Riffado web app.** The injected
+  global is now `window.__riffadoConnector` (was `window.__openplaudConnector`)
+  and the internal postMessage marker is `__riffado` (was `__openplaud`).
+  The connect payload shape and bridge `version` (1) are unchanged. Requires
+  the Riffado web app build that detects `window.__riffadoConnector`.
+
+### Unchanged
+- All references to the external **Plaud** service (`web.plaud.ai`,
+  `api*.plaud.ai`, region detection, token capture) are deliberately left
+  as-is — only the OpenPlaud→Riffado destination brand changed.
+- The `chrome.storage.local` key (`openplaudOrigins`) is kept so existing
+  users' paired self-hosted origins survive the upgrade.
 
 ## [0.1.3] — 2026-05-09
 

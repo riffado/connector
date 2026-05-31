@@ -1,7 +1,7 @@
 /**
  * Popup entrypoint.
  *
- * Lets the user pair self-hosted OpenPlaud instances. For each added origin
+ * Lets the user pair self-hosted Riffado instances. For each added origin
  * we request `host_permissions` at runtime so the bridge content script
  * starts running there. Removing an origin revokes that permission too.
  */
@@ -13,7 +13,7 @@ import {
     type StoredOrigin,
 } from "./lib/storage";
 
-const HARD_CODED_ORIGINS = ["https://openplaud.com"]; // already in manifest host_permissions
+const HARD_CODED_ORIGINS = ["https://riffado.com"]; // already in manifest host_permissions
 
 function normalize(input: string): string | null {
     try {
@@ -76,8 +76,8 @@ async function init(): Promise<void> {
         "open-hosted",
     ) as HTMLButtonElement | null;
     openHosted?.addEventListener("click", () => {
-        chrome.tabs.create({ url: "https://openplaud.com" }).catch(() => {
-            window.open("https://openplaud.com", "_blank", "noopener");
+        chrome.tabs.create({ url: "https://riffado.com" }).catch(() => {
+            window.open("https://riffado.com", "_blank", "noopener");
         });
     });
 
@@ -117,7 +117,7 @@ async function init(): Promise<void> {
         const granted = await requestHostPermission(origin);
         if (!granted) {
             input.setCustomValidity(
-                "Permission denied. The connector needs access to the OpenPlaud origin to deliver the token.",
+                "Permission denied. The connector needs access to the Riffado origin to deliver the token.",
             );
             input.reportValidity();
             return;

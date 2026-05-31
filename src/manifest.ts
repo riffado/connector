@@ -10,9 +10,9 @@ import pkg from "../package.json";
  *   - `host_permissions`:
  *       - https://*.plaud.ai/*  — read the access token a logged-in user's
  *         browser has already obtained from Plaud's own site.
- *       - https://openplaud.com/*  — talk to OpenPlaud's hosted instance.
+ *       - https://riffado.com/*  — talk to Riffado's hosted instance.
  *     Self-hosted users grant their own origin via `optional_host_permissions`
- *     through the popup ("Add my OpenPlaud URL").
+ *     through the popup ("Add my Riffado URL").
  *
  *   - `permissions`:
  *       - storage  — remember the user's self-hosted origins between sessions.
@@ -23,8 +23,8 @@ import pkg from "../package.json";
  */
 export default defineManifest({
     manifest_version: 3,
-    name: "OpenPlaud Connector",
-    short_name: "OpenPlaud",
+    name: "Riffado Connector",
+    short_name: "Riffado",
     description: pkg.description,
     version: pkg.version,
     homepage_url: pkg.homepage,
@@ -35,7 +35,7 @@ export default defineManifest({
     // them — Chrome falls back to the default puzzle-piece icon.
     action: {
         default_popup: "src/popup.html",
-        default_title: "OpenPlaud Connector",
+        default_title: "Riffado Connector",
     },
     background: {
         service_worker: "src/background.ts",
@@ -47,9 +47,9 @@ export default defineManifest({
         "https://api-euc1.plaud.ai/*",
         "https://api-apse1.plaud.ai/*",
         "https://web.plaud.ai/*",
-        "https://openplaud.com/*",
+        "https://riffado.com/*",
     ],
-    // HTTPS-only on purpose. Self-hosted OpenPlaud over plain HTTP isn't a
+    // HTTPS-only on purpose. Self-hosted Riffado over plain HTTP isn't a
     // realistic deployment and dropping http://*/* materially shrinks the
     // CWS review surface for `optional_host_permissions`.
     optional_host_permissions: ["https://*/*"],
@@ -60,7 +60,7 @@ export default defineManifest({
             run_at: "document_idle",
         },
         {
-            matches: ["https://openplaud.com/*"],
+            matches: ["https://riffado.com/*"],
             js: ["src/content-bridge.ts"],
             run_at: "document_start",
             all_frames: false,

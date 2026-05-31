@@ -131,7 +131,7 @@ button.primary {
 }
 
 .status.error {
-    color: oklch(0.6368 0.2078 25.3313); /* openplaud --destructive */
+    color: oklch(0.6368 0.2078 25.3313); /* riffado --destructive */
 }
 
 .status.ok {

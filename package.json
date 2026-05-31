@@ -1,19 +1,19 @@
 {
-    "name": "openplaud-connector",
-    "version": "0.1.3",
-    "description": "Browser extension that bridges your Plaud session to OpenPlaud (self-hosted or hosted).",
+    "name": "riffado-connector",
+    "version": "0.2.0",
+    "description": "Browser extension that bridges your Plaud session to Riffado (self-hosted or hosted).",
     "private": true,
     "license": "AGPL-3.0",
     "repository": {
         "type": "git",
-        "url": "https://github.com/openplaud/connector.git"
+        "url": "https://github.com/riffado/connector.git"
     },
-    "homepage": "https://github.com/openplaud/connector#readme",
+    "homepage": "https://github.com/riffado/connector#readme",
     "scripts": {
         "dev": "vite",
         "build": "tsc --noEmit && vite build",
         "type-check": "tsc --noEmit",
-        "zip": "mkdir -p dist-zip && cd dist && zip -r ../dist-zip/openplaud-connector-$npm_package_version.zip . && cd ..",
+        "zip": "mkdir -p dist-zip && cd dist && zip -r ../dist-zip/riffado-connector-$npm_package_version.zip . && cd ..",
         "release": "pnpm build && pnpm zip"
     },
     "devDependencies": {

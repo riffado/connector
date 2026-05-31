@@ -1,5 +1,5 @@
 /*
- * Palette mirrors openplaud's globals.css so the connector's surfaces
+ * Palette mirrors riffado's globals.css so the connector's surfaces
  * feel native to the app it bridges into. Values are OKLCH (Chrome 111+;
  * our manifest requires 114). Variable names kept stable so selectors
  * below don't need to change.

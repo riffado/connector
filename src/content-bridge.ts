@@ -1,17 +1,17 @@
 /**
- * Content script that runs on https://openplaud.com/* (and any
+ * Content script that runs on https://riffado.com/* (and any
  * self-hosted origin the user has paired via the extension popup).
  *
  * Two responsibilities:
  *
- *   1. Inject `page-bridge.js` into the page's main world so the OpenPlaud
- *      app can detect the extension via `window.__openplaudConnector`.
+ *   1. Inject `page-bridge.js` into the page's main world so the Riffado
+ *      app can detect the extension via `window.__riffadoConnector`.
  *      Content scripts run in an isolated world by default; properties we
  *      set on `window` aren't visible to the page. The injected script
  *      runs in the page's main world and exposes a tiny RPC surface there.
  *
  *   2. Bridge `window.postMessage` from the page to `chrome.runtime` and
- *      back. The page calls `__openplaudConnector.connect()`, which posts
+ *      back. The page calls `__riffadoConnector.connect()`, which posts
  *      a message we relay to the background as `bridge:request-connect`.
  *      When the background later sends us `plaud:token-captured`, we relay
  *      it back into the page via postMessage so the awaiting Promise
@@ -30,11 +30,11 @@ import {
         const script = document.createElement("script");
         script.src = chrome.runtime.getURL("page-bridge.js");
         script.async = false;
-        script.dataset.openplaudInjected = "1";
+        script.dataset.riffadoInjected = "1";
         (document.head || document.documentElement).appendChild(script);
         script.onload = () => script.remove();
     } catch (err) {
-        console.error("[openplaud-connector] failed to inject bridge:", err);
+        console.error("[riffado-connector] failed to inject bridge:", err);
     }
 })();
 

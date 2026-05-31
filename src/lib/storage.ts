@@ -1,7 +1,11 @@
 /**
  * Tiny typed wrapper over chrome.storage.local for the only thing we
- * persist: the list of self-hosted OpenPlaud origins the user has paired
- * with this extension. Hosted (`https://openplaud.com`) is always implicit.
+ * persist: the list of self-hosted Riffado origins the user has paired
+ * with this extension. Hosted (`https://riffado.com`) is always implicit.
+ *
+ * NOTE: the storage key is intentionally kept as "openplaudOrigins" (the
+ * pre-rebrand name) so existing users don't lose their paired origins on
+ * upgrade. Do not rename without a migration.
  */
 
 const KEY_ORIGINS = "openplaudOrigins";
