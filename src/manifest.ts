@@ -49,10 +49,10 @@ export default defineManifest({
         "https://web.plaud.ai/*",
         "https://riffado.com/*",
     ],
-    // HTTPS-only on purpose. Self-hosted Riffado over plain HTTP isn't a
-    // realistic deployment and dropping http://*/* materially shrinks the
-    // CWS review surface for `optional_host_permissions`.
-    optional_host_permissions: ["https://*/*"],
+    // Self-hosted Riffado is commonly run on a LAN or localhost over plain
+    // HTTP (e.g. http://192.168.1.107:3000) to drive a local Ollama. We grant
+    // those origins on demand via the popup, so both schemes are allowed here.
+    optional_host_permissions: ["https://*/*", "http://*/*"],
     content_scripts: [
         {
             matches: ["https://web.plaud.ai/*"],

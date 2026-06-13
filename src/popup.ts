@@ -27,7 +27,12 @@ function normalize(input: string): string | null {
 }
 
 async function requestHostPermission(origin: string): Promise<boolean> {
-    return chrome.permissions.request({ origins: [`${origin}/*`] });
+    try {
+        return await chrome.permissions.request({ origins: [`${origin}/*`] });
+    } catch {
+        // Chrome throws if the origin isn't covered by optional_host_permissions.
+        return false;
+    }
 }
 
 async function revokeHostPermission(origin: string): Promise<void> {

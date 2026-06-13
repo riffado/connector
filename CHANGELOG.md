@@ -6,6 +6,15 @@ and this project adheres to [SemVer](https://semver.org/).
 
 ## [Unreleased]
 
+### Fixed
+- **Self-hosted instances over plain HTTP can now be paired.** Adding an
+  `http://` origin (e.g. a LAN/localhost Riffado at `http://192.168.1.107:3000`)
+  silently failed because `optional_host_permissions` only declared
+  `https://*/*`, so `chrome.permissions.request` threw and the popup's "Add"
+  button appeared to do nothing. Re-added `http://*/*` and wrapped the
+  permission request so a failed grant surfaces an error instead of dying
+  silently. (#1)
+
 ## [0.2.0] — 2026-05-30
 
 ### Changed

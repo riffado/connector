@@ -81,7 +81,7 @@ browser. Privacy policy:
 | `tabs` | Open `web.plaud.ai` in a new tab and close it after capture; open the welcome tab on first install. |
 | `host_permissions: web.plaud.ai, api*.plaud.ai` | Read your token from a logged-in Plaud session. |
 | `host_permissions: riffado.com` | Inject the bridge into the hosted Riffado app. |
-| `optional_host_permissions: https://*/*` | Self-hosted instances can be paired at runtime via the popup. Each one prompts you separately. |
+| `optional_host_permissions: https://*/*, http://*/*` | Self-hosted instances can be paired at runtime via the popup (HTTP is allowed for LAN/localhost deployments). Each one prompts you separately. |
 
 Not used: `cookies`, `webRequest`, `<all_urls>` content scripts, anything
 Google/Apple-related.
