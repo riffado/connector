@@ -12,7 +12,8 @@
  *      why). Once a candidate value passes shape validation, we confirm it
  *      actually authenticates against Plaud before treating the connect as
  *      done.
- *   4. On a verified token, we forward it to the originating Riffado tab
+ *   4. On a verified token, we also read Plaud's `pld_urt` refresh-token
+ *      cookie (best effort), forward both to the originating Riffado tab,
  *      and close the plaud.ai tab.
  *
  * Only one bridge request can be in flight at a time — starting a second
@@ -198,7 +199,7 @@ chrome.storage.onChanged.addListener((changes, area) => {
 // Token capture via chrome.cookies.
 //
 // Plaud's web app authenticates web.plaud.ai with a `pld_ut` cookie carrying
-// the long-lived user token (UT) -- and that cookie is HttpOnly. No page
+// the user token (UT) -- and that cookie is HttpOnly. No page
 // JavaScript, including a content script, can ever read an HttpOnly cookie's
 // value; that's the entire point of the flag. An earlier version of this
 // extension scanned localStorage for a token-shaped value instead, which was
@@ -210,10 +211,20 @@ chrome.storage.onChanged.addListener((changes, area) => {
 // read cookies, including HttpOnly ones, for exactly this kind of legitimate
 // session handoff. It's scoped by the existing plaud.ai `host_permissions`,
 // not `<all_urls>`.
+//
+// The `pld_ut` access token expires 24 hours after issue. Alongside it,
+// Plaud sets a `pld_urt` refresh-token cookie (30 days, also HttpOnly,
+// Domain=plaud.ai) that Riffado can exchange for a fresh access token via
+// POST /auth/refresh-user-token. That cookie is scoped to
+// `Path=/auth/refresh-user-token`, so `chrome.cookies.get` only returns it
+// for a URL whose path matches; we query the same web.plaud.ai host as for
+// `pld_ut` (already covered by `host_permissions`) with that path.
 // ---------------------------------------------------------------------------
 
 const PLAUD_UT_COOKIE_URL = "https://web.plaud.ai/";
 const PLAUD_UT_COOKIE_NAME = "pld_ut";
+const PLAUD_URT_COOKIE_URL = "https://web.plaud.ai/auth/refresh-user-token";
+const PLAUD_URT_COOKIE_NAME = "pld_urt";
 const TOKEN_POLL_INTERVAL_MS = 750;
 const TOKEN_POLL_TIMEOUT_MS = 90_000;
 // If the same candidate token fails verification, don't hammer
@@ -329,17 +340,50 @@ function resolveApiBaseFromToken(token: string): {
     return { apiBase: "https://api.plaud.ai", region: "global" };
 }
 
-async function getPlaudUtCookie(): Promise<string | null> {
+async function getPlaudCookie(
+    url: string,
+    name: string,
+): Promise<string | null> {
     try {
-        const cookie = await chrome.cookies.get({
-            url: PLAUD_UT_COOKIE_URL,
-            name: PLAUD_UT_COOKIE_NAME,
-        });
+        const cookie = await chrome.cookies.get({ url, name });
         return cookie?.value ?? null;
     } catch (err) {
-        console.warn("[riffado-connector] chrome.cookies.get failed:", err);
+        console.warn(
+            `[riffado-connector] chrome.cookies.get failed for '${name}':`,
+            err,
+        );
         return null;
     }
+}
+
+function getPlaudUtCookie(): Promise<string | null> {
+    return getPlaudCookie(PLAUD_UT_COOKIE_URL, PLAUD_UT_COOKIE_NAME);
+}
+
+/**
+ * Best effort: a missing or malformed refresh cookie must never block
+ * delivering the access token, so this resolves to `undefined` instead of
+ * failing. Riffado then behaves as before (the connection lasts as long as
+ * the access token does).
+ */
+async function getPlaudRefreshToken(): Promise<string | undefined> {
+    const value = await getPlaudCookie(
+        PLAUD_URT_COOKIE_URL,
+        PLAUD_URT_COOKIE_NAME,
+    );
+    if (!value) {
+        console.debug(
+            "[riffado-connector] no pld_urt cookie found; delivering access token only",
+        );
+        return undefined;
+    }
+    if (!looksLikeJwt(value)) {
+        console.debug(
+            "[riffado-connector] pld_urt cookie isn't JWT-shaped; delivering access token only",
+        );
+        return undefined;
+    }
+    return value;
 }
 
 async function startBridge(bridgeTabId: number): Promise<void> {
@@ -495,6 +539,10 @@ async function deliverTokenToBridge(
     const verified = await verifyPlaudToken(payload.accessToken, payload.apiBase);
     if (!verified) return false;
 
+    // Read the refresh cookie only once the access token is known to work,
+    // so it comes from the same settled login as the token we deliver.
+    const refreshToken = await getPlaudRefreshToken();
+
     // The session was replaced or cancelled while we were verifying. This
     // capture no longer belongs to the active attempt; drop it silently
     // rather than acting on state that isn't ours.
@@ -505,7 +553,7 @@ async function deliverTokenToBridge(
     try {
         await chrome.tabs.sendMessage(bridgeTabId, {
             type: "plaud:token-captured",
-            payload,
+            payload: refreshToken ? { ...payload, refreshToken } : payload,
         } satisfies RuntimeMessage);
     } catch (err) {
         // Bridge tab might have been closed or navigated. Nothing useful we

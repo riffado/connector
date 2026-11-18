@@ -7,9 +7,10 @@
  *      → window.postMessage  →  content-bridge (isolated world)
  *      → chrome.runtime      →  background
  *
- *   background (polls chrome.cookies for Plaud's pld_ut cookie directly --
- *   no content script runs on web.plaud.ai; that cookie is HttpOnly and no
- *   page JavaScript can ever read it)
+ *   background (polls chrome.cookies for Plaud's pld_ut cookie directly,
+ *   then reads the pld_urt refresh cookie -- no content script runs on
+ *   web.plaud.ai; both cookies are HttpOnly and no page JavaScript can
+ *   ever read them)
  *      → chrome.tabs         →  content-bridge
  *      → window.postMessage  →  page-bridge → caller's Promise resolves
  */
@@ -18,6 +19,12 @@ export type PlaudRegion = "global" | "euc1" | "apse1" | "unknown";
 
 export interface ConnectorTokenPayload {
     accessToken: string;
+    /**
+     * Plaud's refresh token (`pld_urt` cookie), when present. Lets Riffado
+     * mint new access tokens after `accessToken` expires (24 hours). Optional
+     * and additive: older Riffado pages ignore it, so BRIDGE_VERSION stays 1.
+     */
+    refreshToken?: string;
     apiBase: string;
     region: PlaudRegion;
     capturedAt: number;
