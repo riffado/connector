@@ -6,6 +6,32 @@ and this project adheres to [SemVer](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.2.4] — 2026-11-18
+
+### Fixed
+- **Connections made with the connector expired after 24 hours.** Plaud's
+  web login now issues a `pld_ut` access token that lasts one day, plus a
+  separate `pld_urt` refresh-token cookie that lasts 30 days. The connector
+  only handed over `pld_ut`, so Riffado lost access a day after connecting.
+  Once the access token is verified, the background service worker now also
+  reads `pld_urt` via `chrome.cookies` (same JWT-shape check as `pld_ut`)
+  and passes it to the Riffado page as a new optional `refreshToken` field
+  on the connect payload, so Riffado can renew the access token itself
+  until Plaud's 30-day session ends. Reading it is best effort: if the
+  cookie is missing or malformed, the access token is delivered on its own
+  as before. `pld_urt` is scoped to `Path=/auth/refresh-user-token`, so it
+  is read via `https://web.plaud.ai/auth/refresh-user-token`, which the
+  existing `https://web.plaud.ai/*` host permission already covers; no
+  permission changes. The bridge `version` stays 1, since older Riffado
+  pages ignore the extra field.
+
+### Changed
+- README, `PRIVACY.md` and `STORE_LISTING.md` describe the refresh-token
+  cookie. `PRIVACY.md` no longer claims the token is read from
+  `localStorage` or request headers, and now lists the `cookies`,
+  `scripting` and `http://*/*` optional permissions the extension already
+  requests.
+
 ## [0.2.3] — 2026-07-22
 
 ### Changed
