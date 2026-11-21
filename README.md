@@ -9,13 +9,14 @@ account than Plaud's Google or Apple sign-in (see
 Real Sign in with Google / Apple from inside Riffado is structurally
 blocked by Google's authorized-origins policy on Plaud's OAuth client.
 The connector solves that by letting you sign in to `web.plaud.ai`
-normally and then forwarding the resulting access token (and the refresh
-token that comes with it) to Riffado.
+normally and then forwarding the resulting access token (and, when
+available, the refresh token) to Riffado.
 
-Plaud's web access token expires 24 hours after sign-in. The refresh
-token lets Riffado renew it on its own, so the connection keeps working
-until Plaud's 30-day web session ends. Riffado encrypts the access token
-at rest with AES-256-GCM.
+Plaud's web access token expires 24 hours after sign-in. With Riffado
+0.7.0 or later, the refresh token lets Riffado renew it on its own, so the
+connection keeps working until Plaud's 30-day web session ends. Older
+Riffado versions ignore the refresh token, and the connection lasts 24
+hours. Riffado encrypts both tokens at rest with AES-256-GCM.
 
 ---
 
@@ -65,17 +66,21 @@ welcome tab the first time, same as the Web Store install.
    token from Plaud's own `pld_ut` cookie (via `chrome.cookies`, the only
    API that can read it — it's `HttpOnly`, so no page script ever could),
    confirms it actually authenticates against Plaud, then reads the
-   matching refresh token from Plaud's `pld_urt` cookie if it's there.
-   It closes the Plaud tab and hands both tokens to the Riffado tab.
-   If there's no refresh cookie, the access token is handed over on its
-   own, as before.
+   refresh token from Plaud's `pld_urt` cookie if it's there. The refresh
+   token is only passed on when it belongs to the same Plaud account as
+   the access token (matching `sub` claim); it is not otherwise checked.
+   It closes the Plaud tab and hands the tokens to the Riffado tab.
+   If there's no usable refresh cookie, the access token is handed over
+   on its own, as before.
 5. The Riffado page POSTs the tokens to its own
    `/api/plaud/auth/connect-token` endpoint with your existing Riffado
    session cookie. Done.
 
-The connector itself **never sends data to anything other than your
-Riffado instance**. There is no backend; everything happens in your
-browser. Privacy policy:
+The connector itself **sends your tokens only to Plaud's own API (one
+check of the access token) and to your Riffado instance**. There is no
+backend; everything happens in your browser. Use HTTPS for self-hosted
+instances: a plain `http://` URL receives the tokens unencrypted.
+Privacy policy:
 <https://riffado.com/privacy/connector>.
 
 ---

@@ -65,14 +65,16 @@ forwarding the resulting access token to Riffado.
 4. Once Plaud has issued you a token, the extension verifies it against
    Plaud and hands it, together with Plaud's refresh token when present,
    to your Riffado tab. The Plaud tab closes automatically.
-5. Your Riffado tab POSTs the tokens to its own backend over HTTPS.
+5. Your Riffado tab POSTs the tokens to its own backend (over HTTPS on
+   riffado.com; self-hosted instances should use HTTPS too).
 
 **What it does not do.**
 
 - No analytics. No telemetry. No crash reporting.
 - No data is sent to the connector's developers or to any third party.
-- The token never leaves your browser except in the final HTTPS request
-  your Riffado tab makes to your Riffado server.
+- The tokens leave your browser only in one check of the access token
+  against Plaud's own API and in the request your Riffado tab makes to
+  your Riffado server.
 
 **Open source.** AGPL-3.0. Source at github.com/riffado/connector.
 
