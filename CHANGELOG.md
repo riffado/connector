@@ -18,8 +18,8 @@ and this project adheres to [SemVer](https://semver.org/).
   and passes it to the Riffado page as a new optional `refreshToken` field
   on the connect payload, so Riffado can renew the access token itself
   until Plaud's 30-day session ends. Reading it is best effort: if the
-  cookie is missing or malformed, the access token is delivered on its own
-  as before. `pld_urt` is scoped to `Path=/auth/refresh-user-token`, so it
+  cookie is missing or malformed, or its account (`sub`) differs from the
+  access token's, the access token is delivered on its own as before. `pld_urt` is scoped to `Path=/auth/refresh-user-token`, so it
   is read via `https://web.plaud.ai/auth/refresh-user-token`, which the
   existing `https://web.plaud.ai/*` host permission already covers; no
   permission changes. The bridge `version` stays 1, since older Riffado

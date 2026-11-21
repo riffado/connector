@@ -281,6 +281,19 @@ function looksLikeJwt(candidate: string): boolean {
     }
 }
 
+function decodeJwtSubject(token: string): string | null {
+    try {
+        const parts = token.split(".");
+        if (parts.length !== 3) return null;
+        const decoded = base64UrlDecode(parts[1]);
+        if (!decoded) return null;
+        const claims = JSON.parse(decoded) as { sub?: unknown };
+        return typeof claims.sub === "string" && claims.sub ? claims.sub : null;
+    } catch {
+        return null;
+    }
+}
+
 function decodeJwtRegion(token: string): string | null {
     try {
         const parts = token.split(".");
@@ -361,12 +374,16 @@ function getPlaudUtCookie(): Promise<string | null> {
 }
 
 /**
- * Best effort: a missing or malformed refresh cookie must never block
- * delivering the access token, so this resolves to `undefined` instead of
- * failing. Riffado then behaves as before (the connection lasts as long as
- * the access token does).
+ * Best effort: a missing, malformed or mismatched refresh cookie must never
+ * block delivering the access token, so this resolves to `undefined`
+ * instead of failing. The refresh token is only returned when its `sub`
+ * matches the access token's, so a pair from two different Plaud logins is
+ * never handed over. Riffado then behaves as before (the connection lasts
+ * as long as the access token does).
  */
-async function getPlaudRefreshToken(): Promise<string | undefined> {
+async function getPlaudRefreshToken(
+    accessToken: string,
+): Promise<string | undefined> {
     const value = await getPlaudCookie(
         PLAUD_URT_COOKIE_URL,
         PLAUD_URT_COOKIE_NAME,
@@ -380,6 +397,13 @@ async function getPlaudRefreshToken(): Promise<string | undefined> {
     if (!looksLikeJwt(value)) {
         console.debug(
             "[riffado-connector] pld_urt cookie isn't JWT-shaped; delivering access token only",
+        );
+        return undefined;
+    }
+    const refreshSubject = decodeJwtSubject(value);
+    if (!refreshSubject || refreshSubject !== decodeJwtSubject(accessToken)) {
+        console.debug(
+            "[riffado-connector] pld_urt belongs to a different Plaud login; delivering access token only",
         );
         return undefined;
     }
@@ -541,7 +565,7 @@ async function deliverTokenToBridge(
 
     // Read the refresh cookie only once the access token is known to work,
     // so it comes from the same settled login as the token we deliver.
-    const refreshToken = await getPlaudRefreshToken();
+    const refreshToken = await getPlaudRefreshToken(payload.accessToken);
 
     // The session was replaced or cancelled while we were verifying. This
     // capture no longer belongs to the active attempt; drop it silently
