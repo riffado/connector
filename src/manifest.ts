@@ -23,13 +23,18 @@ import pkg from "../package.json";
  *                    statically-declared bridge below only covers the
  *                    hosted origin.
  *       - cookies  — read Plaud's `pld_ut` session cookie, which carries
- *                    the long-lived user token. That cookie is HttpOnly,
+ *                    the user access token, and its `pld_urt` companion,
+ *                    which carries the refresh token Riffado uses to
+ *                    renew that access token. Both cookies are HttpOnly,
  *                    so no page JavaScript (including a content script)
- *                    can ever read it via `document.cookie`; `chrome.cookies`
- *                    is the only way to obtain its value, and it's the
+ *                    can ever read them via `document.cookie`; `chrome.cookies`
+ *                    is the only way to obtain their values, and it's the
  *                    intended API for exactly this kind of session
  *                    handoff. Scoped by the plaud.ai `host_permissions`
- *                    above, not `<all_urls>`.
+ *                    above, not `<all_urls>`. `pld_urt` is path-scoped to
+ *                    /auth/refresh-user-token; it's read via
+ *                    https://web.plaud.ai/auth/refresh-user-token, which
+ *                    the existing https://web.plaud.ai/* entry covers.
  *
  *   - No `webRequest`, no `<all_urls>`.
  */
@@ -58,8 +63,8 @@ export default defineManifest({
     // The statically-declared bridge below only covers the hosted origin;
     // granting a host permission alone never starts a declared content script
     // on a new origin, so paired instances need explicit registration.
-    // `cookies` lets the service worker read Plaud's HttpOnly `pld_ut`
-    // session cookie directly -- see the file-header comment above.
+    // `cookies` lets the service worker read Plaud's HttpOnly `pld_ut` and
+    // `pld_urt` session cookies directly -- see the file-header comment above.
     permissions: ["storage", "tabs", "scripting", "cookies"],
     host_permissions: [
         "https://api.plaud.ai/*",
@@ -73,9 +78,9 @@ export default defineManifest({
     // those origins on demand via the popup, so both schemes are allowed here.
     optional_host_permissions: ["https://*/*", "http://*/*"],
     // No content script runs on web.plaud.ai anymore -- token capture reads
-    // the pld_ut cookie directly from the background service worker via
-    // chrome.cookies (see background.ts), which is the only thing that can
-    // read an HttpOnly cookie's value at all.
+    // the pld_ut and pld_urt cookies directly from the background service
+    // worker via chrome.cookies (see background.ts), which is the only thing
+    // that can read an HttpOnly cookie's value at all.
     content_scripts: [
         {
             matches: ["https://riffado.com/*"],

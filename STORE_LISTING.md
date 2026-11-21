@@ -63,9 +63,9 @@ forwarding the resulting access token to Riffado.
 3. You sign in there however you normally do. The extension never sees
    your password and never interacts with Google or Apple.
 4. Once Plaud has issued you a token, the extension verifies it against
-   Plaud and hands it to your Riffado tab. The Plaud tab closes
-   automatically.
-5. Your Riffado tab POSTs the token to its own backend over HTTPS.
+   Plaud and hands it, together with Plaud's refresh token when present,
+   to your Riffado tab. The Plaud tab closes automatically.
+5. Your Riffado tab POSTs the tokens to its own backend over HTTPS.
 
 **What it does not do.**
 
@@ -104,18 +104,21 @@ origin, so paired instances need explicit registration.
 
 ### `cookies`
 Reads Plaud's `pld_ut` session cookie, which carries the user's access
-token, from a tab where the user is already signed in to Plaud. That
-cookie is `HttpOnly`, so no page JavaScript -- including a content
-script -- can read it via `document.cookie`; `chrome.cookies` is the only
-API that can read an `HttpOnly` cookie's value, and it's the intended use
-case for exactly this kind of session handoff. Scoped by the
+token, and its `pld_urt` cookie, which carries the refresh token Riffado
+uses to renew the access token after it expires (24 hours), from a tab
+where the user is already signed in to Plaud. Both cookies are
+`HttpOnly`, so no page JavaScript -- including a content script -- can
+read them via `document.cookie`; `chrome.cookies` is the only API that
+can read an `HttpOnly` cookie's value, and it's the intended use case
+for exactly this kind of session handoff. Scoped by the
 `https://*.plaud.ai/*` host permission below, not `<all_urls>`.
 
 ### Host permission: `https://*.plaud.ai/*`
-The extension reads the access token from Plaud's `pld_ut` cookie via
-`chrome.cookies`, and verifies it against Plaud's own API before treating
-a connect as complete. This is the only way to obtain the token without
-asking the user for their password.
+The extension reads the access and refresh tokens from Plaud's `pld_ut`
+and `pld_urt` cookies via `chrome.cookies`, and verifies the access token
+against Plaud's own API before treating a connect as complete. This is
+the only way to obtain the tokens without asking the user for their
+password.
 
 ### Host permission: `https://riffado.com/*`
 The extension injects a small bridge into the hosted Riffado app so it
@@ -138,13 +141,13 @@ the extension package.
 ### Data usage disclosures (CWS form)
 
 - "Personally identifiable information": **No**, the extension does not
-  collect PII. The Plaud access token is held transiently in memory and
-  forwarded to the user's own Riffado instance.
+  collect PII. The Plaud access and refresh tokens are held transiently
+  in memory and forwarded to the user's own Riffado instance.
 - "Health information": No.
 - "Financial / payment information": No.
-- "Authentication information": **Yes** — Plaud access token is handled
-  transiently as described in the privacy policy. Not stored. Not
-  transmitted to third parties.
+- "Authentication information": **Yes** — Plaud access and refresh
+  tokens are handled transiently as described in the privacy policy. Not
+  stored. Not transmitted to third parties.
 - "Personal communications": No.
 - "Location": No.
 - "Web history": No.
