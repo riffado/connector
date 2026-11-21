@@ -11,15 +11,22 @@
  *
  *   window.__riffadoConnector = {
  *     version: 1,
- *     connect(): Promise<{ accessToken, apiBase, region, capturedAt }>
+ *     connect(): Promise<{
+ *       accessToken, refreshToken?, apiBase, region, capturedAt
+ *     }>
  *   }
+ *
+ * `refreshToken` is Plaud's refresh token (`pld_urt` cookie). It is optional:
+ * it's omitted when Plaud didn't set the cookie, and pages that predate it
+ * simply ignore the extra field (so `version` stays 1).
  *
  * Callers should:
  *   - feature-detect by checking `window.__riffadoConnector?.version`.
  *   - call connect() in response to a user gesture (Chrome blocks new-tab
  *     opens otherwise; the background opens web.plaud.ai via chrome.tabs).
- *   - POST the resolved payload to their own
- *     /api/plaud/auth/connect-token endpoint with credentials: 'include'.
+ *   - POST the resolved payload (including `refreshToken` when present) to
+ *     their own /api/plaud/auth/connect-token endpoint with
+ *     credentials: 'include'.
  *
  * The connector itself never talks to Riffado's API \u2014 the page does.
  * That keeps the auth model simple: only the user's existing Riffado
@@ -39,8 +46,9 @@
 // Connector" CTA forever.
 //
 // Anything this file needs from the protocol is duplicated below. If you
-// change PAGE_MARKER or BRIDGE_VERSION, change them in BOTH places
-// (here and src/lib/messages.ts) and bump the connector version.
+// change PAGE_MARKER, BRIDGE_VERSION, or the ConnectorTokenPayload shape,
+// change them in BOTH places (here and src/lib/messages.ts) and bump the
+// connector version.
 // ---------------------------------------------------------------------------
 
 const PAGE_MARKER = "__riffado" as const;
@@ -50,6 +58,7 @@ type PlaudRegion = "global" | "euc1" | "apse1" | "unknown";
 
 interface ConnectorTokenPayload {
     accessToken: string;
+    refreshToken?: string;
     apiBase: string;
     region: PlaudRegion;
     capturedAt: number;
